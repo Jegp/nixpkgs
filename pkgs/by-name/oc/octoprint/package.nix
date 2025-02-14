@@ -6,7 +6,7 @@
   fetchFromGitHub,
   fetchPypi,
   python3,
-  substituteAll,
+  replaceVars,
   nix-update-script,
   nixosTests,
   # To include additional plugins, pass them here as an overlay.
@@ -34,6 +34,7 @@ let
           flask = super.flask.overridePythonAttrs (oldAttrs: rec {
             version = "2.2.5";
             format = "setuptools";
+            pyproject = null;
             src = fetchPypi {
               pname = "Flask";
               inherit version;
@@ -193,14 +194,12 @@ let
 
           patches = [
             # substitute pip and let it find out, that it can't write anywhere
-            (substituteAll {
-              src = ./pip-path.patch;
+            (replaceVars ./pip-path.patch {
               pip = "${self.pip}/bin/pip";
             })
 
             # hardcore path to ffmpeg and hide related settings
-            (substituteAll {
-              src = ./ffmpeg-path.patch;
+            (replaceVars ./ffmpeg-path.patch {
               ffmpeg = "${pkgs.ffmpeg}/bin/ffmpeg";
             })
           ];

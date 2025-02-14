@@ -1,5 +1,6 @@
 import ./generic.nix {
-  version = "1.4.5";
-  hash = "sha256-0nn/ZyjkLXWXBZasNhbeEynEN52cmZQAcgg3hLmRpdo=";
-  cargoHash = "sha256-sLz1EdczSj0/ACLUpWex3i8ZUhNeyU/RVwuAqccLIz8=";
+  version = "1.4.6";
+  hash = "sha256-pjJyq52wO5p34LN2Jmt0npgWBDcWin8gIX4skZ7Ff8E=";
+  cargoHash = "sha256-33HRoH/vWPe/wOZJtQLWV9eBocbj0iR/XUu4zMehu8M=";
+  patchDir = ./patches/1_4;
 }

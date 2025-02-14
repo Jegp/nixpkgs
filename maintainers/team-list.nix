@@ -44,6 +44,20 @@ with lib.maintainers;
     enableFeatureFreezePing = true;
   };
 
+  android = {
+    members = [
+      adrian-gierakowski
+      hadilq
+      johnrtitor
+      numinit
+      RossComputerGuy
+    ];
+    scope = "Maintain Android-related tooling in nixpkgs.";
+    githubTeams = [ "android" ];
+    shortName = "Android";
+    enableFeatureFreezePing = true;
+  };
+
   bazel = {
     members = [
       mboes
@@ -184,6 +198,7 @@ with lib.maintainers;
       siraben
       vbgl
       alizter
+      stepbrobd
     ];
     scope = "Maintain the Coq theorem prover and related packages.";
     shortName = "Coq";
@@ -455,7 +470,6 @@ with lib.maintainers;
   gnome-circle = {
     members = [
       aleksana
-      dawidd6
       getchoo
       michaelgrahamevans
     ];
@@ -505,6 +519,20 @@ with lib.maintainers;
     ];
     scope = "Maintain the Home Assistant ecosystem";
     shortName = "Home Assistant";
+  };
+
+  hyprland = {
+    members = [
+      donovanglover
+      fufexan
+      johnrtitor
+      khaneliman
+      NotAShelf
+    ];
+    githubTeams = [ "hyprland" ];
+    scope = "Maintain Hyprland compositor and ecosystem";
+    shortName = "Hyprland";
+    enableFeatureFreezePing = true;
   };
 
   infisical = {
@@ -742,7 +770,6 @@ with lib.maintainers;
       mguentner
       ralith
       dandellion
-      sumnerevans
       nickcao
       teutat3s
     ];
@@ -801,6 +828,13 @@ with lib.maintainers;
     scope = "Maintain the Nixpkgs module system.";
     shortName = "Module system";
     enableFeatureFreezePing = true;
+  };
+
+  neovim = {
+    members = [ ];
+    githubTeams = [ "neovim" ];
+    scope = "Maintain the vim and neovim text editors and related packages.";
+    shortName = "Vim/Neovim";
   };
 
   ngi = {
@@ -1089,16 +1123,6 @@ with lib.maintainers;
     shortName = "coqui-ai TTS";
   };
 
-  vim = {
-    members = [
-      figsoda
-      softinio
-      teto
-    ];
-    scope = "Maintain the vim and neovim text editors and related packages.";
-    shortName = "Vim/Neovim";
-  };
-
   wdz = {
     members = [
       n0emis
@@ -1134,7 +1158,10 @@ with lib.maintainers;
   };
 
   zig = {
-    members = [ figsoda ];
+    members = [
+      figsoda
+      RossComputerGuy
+    ];
     scope = "Maintain the Zig compiler toolchain and nixpkgs integration.";
     shortName = "Zig";
     enableFeatureFreezePing = true;

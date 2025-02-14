@@ -8,7 +8,6 @@ let
   cfg = config.services.stalwart-mail;
   configFormat = pkgs.formats.toml { };
   configFile = configFormat.generate "stalwart-mail.toml" cfg.settings;
-  dataDir = "/var/lib/stalwart-mail";
   useLegacyStorage = lib.versionOlder config.system.stateVersion "24.11";
 
   parsePorts =
@@ -46,6 +45,14 @@ in
         By default, the module is configured to store everything locally.
       '';
     };
+
+    dataDir = lib.mkOption {
+      type = lib.types.path;
+      default = "/var/lib/stalwart-mail";
+      description = ''
+        Data directory for stalwart
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -63,15 +70,15 @@ in
           {
             # structured data in SQLite, blobs on filesystem
             db.type = lib.mkDefault "sqlite";
-            db.path = lib.mkDefault "${dataDir}/data/index.sqlite3";
+            db.path = lib.mkDefault "${cfg.dataDir}/data/index.sqlite3";
             fs.type = lib.mkDefault "fs";
-            fs.path = lib.mkDefault "${dataDir}/data/blobs";
+            fs.path = lib.mkDefault "${cfg.dataDir}/data/blobs";
           }
         else
           {
             # everything in RocksDB
             db.type = lib.mkDefault "rocksdb";
-            db.path = lib.mkDefault "${dataDir}/db";
+            db.path = lib.mkDefault "${cfg.dataDir}/db";
             db.compression = lib.mkDefault "lz4";
           };
       storage.data = lib.mkDefault "db";
@@ -85,19 +92,21 @@ in
       resolver.public-suffix = lib.mkDefault [
         "file://${pkgs.publicsuffix-list}/share/publicsuffix/public_suffix_list.dat"
       ];
-      config.resource =
-        let
-          hasHttpListener = builtins.any (listener: listener.protocol == "http") (
-            lib.attrValues cfg.settings.server.listener
-          );
-        in
-        {
-          spam-filter = lib.mkDefault "file://${cfg.package}/etc/stalwart/spamfilter.toml";
-        }
-        // lib.optionalAttrs ((builtins.hasAttr "listener" cfg.settings.server) && hasHttpListener) {
-          webadmin = lib.mkDefault "file://${cfg.package.webadmin}/webadmin.zip";
-        };
-      webadmin.path = "/var/cache/stalwart-mail";
+      config = {
+        spam-filter.resource = lib.mkDefault "file://${cfg.package}/etc/stalwart/spamfilter.toml";
+        webadmin =
+          let
+            hasHttpListener = builtins.any (listener: listener.protocol == "http") (
+              lib.attrValues cfg.settings.server.listener
+            );
+          in
+          {
+            path = "/var/cache/stalwart-mail";
+          }
+          // lib.optionalAttrs ((builtins.hasAttr "listener" cfg.settings.server) && hasHttpListener) {
+            resource = lib.mkDefault "file://${cfg.package.webadmin}/webadmin.zip";
+          };
+      };
     };
 
     # This service stores a potentially large amount of data.
@@ -112,6 +121,10 @@ in
       };
     };
 
+    systemd.tmpfiles.rules = [
+      "d '${cfg.dataDir}' - stalwart-mail stalwart-mail - -"
+    ];
+
     systemd = {
       packages = [ cfg.package ];
       services.stalwart-mail = {
@@ -124,11 +137,11 @@ in
         preStart =
           if useLegacyStorage then
             ''
-              mkdir -p ${dataDir}/data/blobs
+              mkdir -p ${cfg.dataDir}/data/blobs
             ''
           else
             ''
-              mkdir -p ${dataDir}/db
+              mkdir -p ${cfg.dataDir}/db
             '';
 
         serviceConfig = {
@@ -140,6 +153,9 @@ in
           StandardOutput = "journal";
           StandardError = "journal";
 
+          ReadWritePaths = [
+            cfg.dataDir
+          ];
           CacheDirectory = "stalwart-mail";
           StateDirectory = "stalwart-mail";
 
